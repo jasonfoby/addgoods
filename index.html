@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=1024"> <!-- or your site's desktop width -->
+    <title>Document</title>
+    <script src="https://unpkg.com/xlsx/dist/xlsx.full.min.js"></script>
+
+    <style>
+        body {
+            font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+
+
+        /* 상단 도움말 */
+        .help {
+            display: flex;
+            margin: 0 auto;
+            justify-content: center;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+
+
+        /* 상단 버튼 */
+        .button-container {
+            display: flex;
+            margin: 0 auto;
+            justify-content: center;
+            margin-bottom: 40px;
+        }
+
+        .delete-button {
+            margin-left: 40px;
+        }
+
+        button {
+            color: white;
+            border-color: rgba(0, 0, 0, 0);
+            background-color: powderblue;
+            height: 30px;
+            width: 90px;
+        }
+
+        button:hover {
+            background-color: rgb(157, 208, 214);
+        }
+
+        button:active {
+            background-color: rgb(130, 180, 185);
+        }
+
+        /* 상단 버튼 끝 */
+
+
+
+        /* 인풋 클릭시 포커스 라인 삭제 */
+        input:focus {
+            outline: none;
+        }
+
+        input {
+            border: 1px solid powderblue;
+            width: 110px;
+            height: 15px;
+        }
+
+        /* 인풋 클릭시 포커스 라인 삭제 끝 */
+
+
+
+        /* 날짜 선택 인풋 */
+        input[type="date"] {
+            font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+            width: 113px;
+            height: 17px;
+        }
+
+        /* 날짜 선택 인풋 끝 */
+
+
+
+        /* 상단 인풋 */
+        .top-col-1 {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .top-col-2,
+        .top-col-3 {
+            margin-left: 20px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        span {
+            padding-left: 10px;
+            padding-right: 10px;
+            width: 70px;
+            display: inline-block;
+        }
+
+        .top-container {
+            display: flex;
+            align-items: center;
+            margin: 0 auto;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        /* 상단 인풋 끝 */
+
+
+
+        /* 바코드 스캔 */
+        .barcode-scan {
+            display: flex;
+            margin: 0 auto;
+            margin-bottom: 40px;
+            justify-content: center;
+        }
+
+        .list {
+            width: 300px;
+            height: 600px;
+            border: 1px solid powderblue;
+            overflow: auto;
+        }
+
+        .scan-name {
+            width: 90px;
+        }
+
+        .scan-input {
+            width: 60%
+        }
+
+        /* 바코드 스캔 끝 */
+
+
+
+        /* 스캔 아웃풋 */
+        .scan-output {
+            display: flex;
+            margin: 0 auto;
+            justify-content: center;
+        }
+
+        .result {
+            width: 300px;
+            height: 600px;
+            border: 1px solid powderblue;
+            overflow: auto;
+        }
+
+        .result-name {
+            margin-left: 20px;
+        }
+
+        /* 스캔 아웃풋 끝 */
+
+
+
+        /* 스캔 리스트 */
+        .new-item input[type="checkbox"] {
+            margin-right: -33px;
+            margin-left: -43px;
+            height: 12px;
+        }
+
+        .new-item {
+            padding: 3px;
+            margin: 3px;
+            border-bottom: 1px solid powderblue;
+        }
+
+        /* 스캔 리스트 끝 */
+
+
+
+        /* 스캔 최종 */
+        .result-item {
+            border-bottom: 1px solid powderblue;
+            padding: 3px;
+            margin: 3px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .nesting {
+            width: 30px;
+            text-align: center;
+        }
+
+        /* 스캔 최종 끝 */
+
+
+
+    </style>
+
+</head>
+
+<body>
+    <div class="help">
+        <pre>
+점포 코드는 <a href="https://naver.com" target="_blank">여기</a>에서 확인
+브랜드명은 <a href="https://naver.com" target="_blank">여기</a>에서 확인
+    
+입고처, TYPE, TYPECD은 시즌반품 작업용이므로
+해당 값을 고정해두었습니다.
+    </pre>
+    </div>
+
+    <div class="button-container">
+        <div class="save-button">
+            <button><b>엑셀 저장</b></button>
+        </div>
+        <div class="delete-button">
+            <button><b>아이템 삭제</b></button>
+        </div>
+    </div>
+
+    <div class="top-container">
+        <div class="top-col-1">
+            <div class="name">
+                <span>점포코드</span>
+                <input class="store-code">
+            </div>
+            <div class="name">
+                <span>입고처</span>
+                <input value="7101" class="dist">
+            </div>
+            <div class="name">
+                <span>반품일</span>
+                <input type="date" class="date">
+            </div>
+        </div>
+
+        <div class="top-col-2">
+            <div class="name">
+                <span>TYPE</span>
+                <input value="시즌반품" class="type">
+            </div>
+            <div class="name">
+                <span>TYPECD</span>
+                <input value="A" class="typecd">
+            </div>
+            <div class="name">
+                <span>브랜드</span>
+                <input class="brand">
+            </div>
+        </div>
+
+        <div class="top-col-3">
+            <div class="name">
+                <span>BOX번호</span>
+                <input class="box-no">
+            </div>
+            <div class="name">
+                <span>총 수량</span>
+                <input class="total-no">
+            </div>
+            <div class="name">
+                <span>운송장</span>
+                <input class="waybill">
+            </div>
+        </div>
+    </div>
+
+    <div class="barcode-scan">
+        <span class="scan-name">바코드 스캔</span>
+        <input class="scan-input">
+    </div>
+
+    <div class="scan-output">
+        <div calss="list-name"><b>스캔 리스트</b>
+            <div class="list">
+            </div>
+        </div>
+        <div class="result-name"><b>최종 리스트</b>
+            <div class="result">
+            </div>
+        </div>
+
+
+        <script>
+
+            document.querySelector('.scan-input').addEventListener('keypress', function (e) {
+                if (e.key === 'Enter' && e.target.value.trim() !== "") {
+                    var scannedValue = e.target.value;
+
+                    var itemCount = document.querySelectorAll('.new-item').length;
+                    var newItemNumber = itemCount + 1;
+
+                    var newItem = document.createElement('div');
+                    newItem.classList.add('new-item');
+                    newItem.textContent = newItemNumber + '. ' + scannedValue;
+
+                    // 새로운 div 생성
+                    var newItem = document.createElement('div');
+                    newItem.classList.add('new-item');
+
+                    // 체크박스 추가
+                    var checkbox = document.createElement('input');
+                    checkbox.type = 'checkbox';
+                    newItem.appendChild(checkbox);
+
+                    var textNode = document.createTextNode(newItemNumber + '. ' + scannedValue);
+                    newItem.appendChild(textNode);
+
+                    document.querySelector('.list').appendChild(newItem);
+                    e.target.value = '';
+
+                    document.querySelector('.total-no').value = newItemNumber;
+
+                    var existingItem = Array.from(document.querySelectorAll('.result-item')).find(function (item) {
+                        return item.dataset.originalText === scannedValue;
+                    });
+
+                    if (existingItem) {
+                        var nestingInput = existingItem.querySelector('.nesting');
+                        nestingInput.value = parseInt(nestingInput.value, 10) + 1;
+                    } else {
+                        var resultItem = document.createElement('div');
+                        resultItem.classList.add('result-item');
+
+                        // 텍스트를 담을 추가적인 div를 생성
+                        var textDiv = document.createElement('div');
+                        textDiv.textContent = scannedValue;
+                        resultItem.appendChild(textDiv);
+
+                        resultItem.dataset.originalText = scannedValue;
+
+                        var nestingInput = document.createElement('input');
+                        nestingInput.classList.add('nesting');
+                        nestingInput.value = 1;
+                        resultItem.appendChild(nestingInput);
+
+                        document.querySelector('.result').appendChild(resultItem);
+                    }
+
+                    document.querySelectorAll('.result-item').forEach(function (item, index) {
+                        // 순번 업데이트는 첫 번째 자식 div (textDiv)에 대해 수행
+                        item.children[0].textContent = (index + 1) + '. ' + item.dataset.originalText;
+                    });
+                }
+            });
+        </script>
+
+
+
+        <script>
+
+            document.querySelector('.save-button').addEventListener('click', function () {
+                // 값 추출 로직
+                var storeCode = document.querySelector('.store-code').value;
+                var dist = document.querySelector('.dist').value;
+                var date = document.querySelector('.date').value;
+                var type = document.querySelector('.type').value;
+                var typecd = document.querySelector('.typecd').value;
+                var brand = document.querySelector('.brand').value;
+                var boxNo = document.querySelector('.box-no').value;
+                var waybill = document.querySelector('.waybill').value;
+
+                // result-item과 nesting의 값들을 배열로 추출
+                var resultItems = Array.from(document.querySelectorAll('.result-item')).map(function (item) {
+                    return item.textContent.split('. ')[1];  // 순번 제거
+                });
+                var nestingItems = Array.from(document.querySelectorAll('.nesting')).map(function (input) {
+                    return input.value;
+                });
+
+                // 엑셀 파일 생성 로직
+                var ws_data = [
+                    ["점포코드", "입고처", "반품일", "TYPE", "TYPECD", "브랜드", "BOX번호", "상품코드", "수량", "운송장 번호"]
+                ];
+
+                // resultItems와 nestingItems의 값들로 새로운 행을 추가
+                for (var i = 0; i < resultItems.length; i++) {
+                    ws_data.push([storeCode, dist, date, type, typecd, brand, boxNo, resultItems[i], nestingItems[i], waybill]);
+                }
+
+                var ws = XLSX.utils.aoa_to_sheet(ws_data);
+                var wb = XLSX.utils.book_new();
+                XLSX.utils.book_append_sheet(wb, ws, "SheetJS");
+
+                // 엑셀 파일 다운로드
+                XLSX.writeFile(wb, "output.xlsx");
+            });
+
+
+
+            document.querySelector('.delete-button').addEventListener('click', function () {
+                // 체크된 new-item을 찾아서 삭제
+                document.querySelectorAll('.new-item input[type="checkbox"]:checked').forEach(function (checkbox) {
+                    var itemText = checkbox.nextSibling.nodeValue.split('. ')[1];
+
+                    // 관련된 result-item을 찾아서 수량 감소 및 필요하면 삭제
+                    document.querySelectorAll('.result-item').forEach(function (item) {
+                        var itemText = item.childNodes[0].textContent.split('. ')[1];
+                        if (itemText === checkbox.nextSibling.nodeValue.split('. ')[1]) {
+                            var nestingInput = item.querySelector('.nesting');
+                            nestingInput.value = parseInt(nestingInput.value) - 1;
+
+                            if (nestingInput.value == "0") {
+                                item.remove();
+                            }
+                        }
+                    });
+
+                    checkbox.parentElement.remove();
+                });
+
+                // 순번 및 총 수량 업데이트
+                var newItems = document.querySelectorAll('.new-item');
+                newItems.forEach(function (item, index) {
+                    item.childNodes[1].nodeValue = (index + 1) + '. ' + item.childNodes[1].nodeValue.split('. ')[1];
+                });
+                document.querySelector('.total-no').value = newItems.length;
+
+                // result-item 순번 업데이트
+                document.querySelectorAll('.result-item').forEach(function (item, index) {
+                    item.childNodes[0].textContent = (index + 1) + '. ' + item.dataset.originalText;
+                });
+            });
+
+
+        </script>
+
+</body>
+
+</html>
